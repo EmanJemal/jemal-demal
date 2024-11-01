@@ -232,7 +232,11 @@
     width: 100%;
     text-align: center;
     margin-top: 25px;
+}
+
+.userName {
     color: var(--dark-mint);
+    margin-top: 10px;
 }
 
 .user .databse-info .Security-key {

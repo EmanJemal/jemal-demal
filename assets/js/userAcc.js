@@ -289,3 +289,16 @@ window.onload = () => {
 document.querySelector('.submit-btn').addEventListener('click', () => {
     submitData();
 });
+
+
+// Check if the role in the database is Admin and log "hi" if true
+fetchUserData(username).then(userData => {
+    if (userData && userData.role === "Paid" || userData.role === "Admin") {
+        document.querySelector('.pending').innerHTML = "Paid";
+        document.querySelector('.pending').style.color = "hsl(163, 88%, 50%)";
+    }
+    else {
+        document.querySelector('.pending').innerHTML = "pending";
+        document.querySelector('.pending').style.color = "red";
+    }
+});

@@ -123,6 +123,10 @@
             text-align: center;
             margin-top: 10px;
         }
+
+        .group-members {
+            position: fixed;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
@@ -149,7 +153,7 @@
                     <h3>Drag Members Here to Create Group</h3>
                 </div>
                 <button class="create-group" id="create-group-btn">Create Group</button>
-                <div id="groups-container" class="groups"></div>
+                <div id="groups-container" class="groups group-members"></div>
             </div>
         </div>
     </div>
@@ -295,6 +299,13 @@
             const groupName = groupDiv.querySelector('h3').innerText;
             const group = groups.find(g => g.name === groupName);
 
+            // Check if member is already in another group
+            const memberInAnotherGroup = groups.some(g => g.members.includes(memberName));
+            if (memberInAnotherGroup) {
+                alert(`${memberName} is already in another group.`);
+                return;
+            }
+
             if (group && group.members.length < 4) {
                 group.members.push(memberName);
                 updateGroupsDisplay();
@@ -307,11 +318,14 @@
         // Create a new group
         document.getElementById('create-group-btn').addEventListener('click', () => {
             const groupName = prompt("Enter the group name:");
-            if (groupName) {
-                const newGroup = { name: groupName, members: [] };
+            if (groupName && selectedMembers.size > 0) {
+                const newGroup = { name: groupName, members: Array.from(selectedMembers) };
                 groups.push(newGroup);
                 updateGroupsDisplay();
                 saveGroupsToDatabase();
+                selectedMembers.clear(); // Clear selected members after group creation
+            } else {
+                alert('Please select members before creating a group.');
             }
         });
 
@@ -377,6 +391,14 @@
         dragArea.ondrop = (e) => {
             e.preventDefault();
             const memberName = e.dataTransfer.getData('text/plain');
+
+            // Check if member is already in another group
+            const memberInAnotherGroup = groups.some(g => g.members.includes(memberName));
+            if (memberInAnotherGroup) {
+                alert(`${memberName} is already in another group.`);
+                return;
+            }
+
             const newGroup = { name: 'New Group', members: [memberName] };
             groups.push(newGroup);
             updateGroupsDisplay();

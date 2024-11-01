@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>FlipHacks - Creative & Innovative Minds</title>
+    <meta name="title" content="FlipHacks - Creative & Innovative Minds" />
+    <meta name="description" content="This is a Hackathon website made for Flipper school by Lewi Zelalem." />
+
+    <link rel="shortcut icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/group.css">
+</head>
+
+<body>
+
+    <div class="topbar">
+        <div class="container">
+            <address class="topbar-item">
+                <div class="icon">
+                    <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+                </div>
+                <span class="span">Hackathon Club, Flipper International School, A.A</span>
+            </address>
+
+            <div class="separator"></div>
+
+            <div class="topbar-item item-2">
+                <div class="icon">
+                    <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+                    <span class="span">Every Friday: 2.30 pm to 3.30 pm</span>
+                </div>
+
+                <div class="separator"></div>
+
+                <a href="tel:+251937116914" class="topbar-item">
+                    <div class="icon">
+                        <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+                    </div>
+                    <span class="span">+251937116914</span>
+                </a>
+
+                <div class="separator"></div>
+
+                <a href="mailto:ttfalewi@gmail.com" class="topbar-item">
+                    <div class="icon">
+                        <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+                    </div>
+                    <span class="span">ttfalewi@gmail.com</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <header class="header" data-header>
+        <div class="container">
+            <a href="#" class="logo">
+                <img src="assets/images/logo21.svg" alt="Fliphacks - Home" width="160" height="50" />
+            </a>
+            <nav class="navbar" data-navbar>
+                <button class="close-btn" aria-label="close menu" data-nav-toggler>
+                    <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+                </button>
+
+                <a href="#" class="logo">
+                    <img src="assets/images/logo-new.svg" alt="Fliphacks - Home" width="160" height="50" />
+                </a>
+
+                <ul class="navbar-list">
+                    <li class="navbar-items"><a href="#home" class="navbar-link hover-underline active">
+                            <div class="separator"></div><span class="span">Home</span>
+                        </a></li>
+                    <li class="navbar-items"><a href="#tracks" class="navbar-link hover-underline">
+                            <div class="separator"></div><span class="span">Tracks</span>
+                        </a></li>
+                    <li class="navbar-items"><a href="#about" class="navbar-link hover-underline">
+                            <div class="separator"></div><span class="span">About Us</span>
+                        </a></li>
+                    <li class="navbar-items"><a href="#speakers" class="navbar-link hover-underline">
+                            <div class="separator"></div><span class="span">Speakers</span>
+                        </a></li>
+                    <li class="navbar-items"><a href="#contact" class="navbar-link hover-underline">
+                            <div class="separator"></div><span class="span">Contact Us</span>
+                        </a></li>
+                </ul>
+
+                <div class="text-center">
+                    <p class="headline-1 navbar-title">Visit Us</p>
+                    <address class="body-4">Flipper International School, <br />Addis Ababa</address>
+                    <p class="body-4 navbar-text">Friday-Club: 2.30 - 3.30 pm</p>
+                    <a href="mailto:ttfalewi@gmail.com" class="body-4 sidebar-link">ttfalewi@gmail.com</a>
+                    <div class="separator"></div>
+                    <p class="contact-label">Join Our Club</p>
+                    <a href="tel:+251937116914" class="body-1 contact-number hover-underline">+251937116914</a>
+                </div>
+            </nav>
+
+            <a href="#" class="btn btn-secondary">
+                <span class="text text-1">Secure Your Spot!</span>
+                <span class="text text-2" aria-hidden="true">Secure Your Spot!</span>
+            </a>
+
+            <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+                <span class="line line-1"></span>
+                <span class="line line-2"></span>
+                <span class="line line-3"></span>
+            </button>
+
+            <div class="overlay" data-nav-toggler data-overlay></div>
+        </div>
+    </header>
+
+    <div class="containerr">
+        <h1><span id="group-name"></span></h1>
+
+        <h2>Members</h2>
+        <div id="members-container"></div>
+
+        <h2>Documentation</h2>
+        <p>Here you can include documentation related to the group's projects or activities.</p>
+
+        <h2>Group Chat</h2>
+        <div class="chat-container">
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input-section">
+                <input type="text" id="chat-input" placeholder="Type your message here..." />
+                <button id="send-button">Send</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module" src="assets/js/group.js"></script>
+</body>
+
+</html>
