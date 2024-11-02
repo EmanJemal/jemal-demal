@@ -18,7 +18,6 @@
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      height: 1500px;
     }
 
     h1 {
@@ -115,17 +114,12 @@
       <!-- User data will be loaded here -->
     </tbody>
   </table>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-    import {
-      getDatabase,
-      ref,
-      get,
-      update,
-      remove,
-    } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+    import { getDatabase, ref, get, update, remove } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-    // Firebase configuration (replace with your actual config)
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCVIym8X-GDRx6_1256dtVZdo3hIm7TRgI",
       authDomain: "flipper-hack.firebaseapp.com",
@@ -141,173 +135,63 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    // Load all user data when the button is clicked
-    document
-      .getElementById("load-users")
-      .addEventListener("click", function () {
-        loadUsers();
-      });
+    // Check if userName is Arafat_Mohammed
+    const storedUserName = localStorage.getItem("username");
 
-    // Load users based on security code when the search button is clicked
-    document
-      .getElementById("search-users")
-      .addEventListener("click", function () {
-        const securityCode = document
-          .getElementById("security-code-input")
-          .value.trim();
-        if (securityCode.length === 2) {
-          // Assuming the security code is 5 digits
-          loadUsers(securityCode);
-        } else {
-          alert("Please enter a valid 5-digit security code.");
-        }
-      });
-
-    // Load users based on the security code if provided
+    console.log(storedUserName);
+    // Load users function
     function loadUsers(securityCode = null) {
       const usersRef = ref(database, "users");
-
       get(usersRef)
         .then((snapshot) => {
           if (snapshot.exists()) {
             const users = snapshot.val();
             const tbody = document.getElementById("user-table-body");
-            tbody.innerHTML = ""; // Clear existing data
-            let usersFound = false; // To keep track if any users match the search
+            tbody.innerHTML = "";
+            let usersFound = false;
 
             for (const key in users) {
               const user = users[key];
-
-              // Convert security code from the user to string for consistent comparison
               const userSecurityCode = String(user.securityCode);
+              if (securityCode && userSecurityCode !== securityCode) continue;
 
-              // If a security code is provided, filter users by that code
-              if (securityCode && userSecurityCode !== securityCode) {
-                continue;
-              }
-
-              // If a matching user is found, create a table row
               const row = document.createElement("tr");
-
               row.innerHTML = `
-                                <td>${key}</td>
-                                <td>${user.firstName}</td>
-                                <td>${user.lastName}</td>
-                                <td>${user.phoneNumber}</td>
-                                <td>${user.password}</td>
-                                <td>${user.securityCode}</td>                               
-                                <td>
-                                    <input type="text" data-username="${key}" class="role-input" value="${user.role}" />
-                                </td>
-                                <td>
-                                    <select data-username="${key}" class="pass-fail-dropdown">
-                                        <option value="" disabled selected>Select</option>
-                                        <option value="Pass">Pass</option>
-                                        <option value="Fail">Fail</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <button data-username="${key}" class="delete-user-btn">Delete</button>
-                                </td>
-                            `;
-
-              // Set current status if exists
-              if (user.passFail) {
-                const dropdown = row.querySelector(".pass-fail-dropdown");
-                dropdown.value = user.passFail;
-              }
-
+                <td>${key}</td>
+                <td>${user.firstName}</td>
+                <td>${user.lastName}</td>
+                <td>${user.phoneNumber}</td>
+                <td>${user.password}</td>
+                <td>${user.securityCode}</td>
+                <td><input type="text" data-username="${key}" class="role-input" value="${user.role}" /></td>
+                <td><select data-username="${key}" class="pass-fail-dropdown">
+                  <option value="" disabled selected>Select</option>
+                  <option value="Pass">Pass</option>
+                  <option value="Fail">Fail</option>
+                </select></td>
+                <td><button data-username="${key}" class="delete-user-btn">Delete</button></td>
+              `;
               tbody.appendChild(row);
-              usersFound = true; // Set to true as soon as a user is found
+              usersFound = true;
             }
 
             if (!usersFound) {
-              // If no users match the search, show a message
-              tbody.innerHTML =
-                '<tr><td colspan="9">No users found with the provided security code.</td></tr>';
+              tbody.innerHTML = '<tr><td colspan="9">No users found with the provided security code.</td></tr>';
             }
-
-            // Add event listener to role inputs
-            const roleInputs = document.getElementsByClassName("role-input");
-            Array.from(roleInputs).forEach((input) => {
-              input.addEventListener("change", function () {
-                const newRole = this.value;
-                const username = this.getAttribute("data-username");
-
-                // Update the user's role in the database
-                const userRef = ref(database, `users/${username}`);
-                update(userRef, { role: newRole })
-                  .then(() => {
-                    console.log(`Role updated for ${username} to ${newRole}`);
-                  })
-                  .catch((error) => {
-                    console.error("Error updating role: ", error);
-                  });
-              });
-            });
-
-            // Add event listener to dropdowns
-            const dropdowns = document.getElementsByClassName("pass-fail-dropdown");
-            Array.from(dropdowns).forEach((dropdown) => {
-              dropdown.addEventListener("change", function () {
-                const selectedValue = this.value;
-                const username = this.getAttribute("data-username");
-
-                // Update the user's pass/fail status in the database
-                const userRef = ref(database, `users/${username}`);
-                update(userRef, { passFail: selectedValue })
-                  .then(() => {
-                    console.log(`Pass/Fail status updated for ${username} to ${selectedValue}`);
-                  })
-                  .catch((error) => {
-                    console.error("Error updating Pass/Fail status: ", error);
-                  });
-              });
-            });
-
-            // Add event listener to delete buttons
-            const deleteButtons = document.getElementsByClassName("delete-user-btn");
-            Array.from(deleteButtons).forEach((button) => {
-              button.addEventListener("click", function () {
-                const username = this.getAttribute("data-username");
-
-                // Delete the user from the database
-                const userRef = ref(database, `users/${username}`);
-                remove(userRef)
-                  .then(() => {
-                    console.log(`User ${username} deleted successfully`);
-                    loadUsers(securityCode); // Reload users after deletion
-                  })
-                  .catch((error) => {
-                    console.error("Error deleting user: ", error);
-                  });
-              });
-            });
           } else {
             alert("No users found.");
           }
         })
-        .catch((error) => {
-          console.error("Error fetching user data: ", error);
-        });
+        .catch((error) => console.error("Error fetching user data: ", error));
     }
 
-    const roleInputs = document.getElementsByClassName("role-input");
-    Array.from(roleInputs).forEach((input) => {
-      input.addEventListener("change", function () {
-        const newRole = this.value;
-        const username = this.getAttribute("data-username");
-
-        // Update the user's role in the database
-        const userRef = ref(database, `users/${username}`);
-        update(userRef, { role: newRole })
-          .then(() => {
-            console.log(`Role updated for ${username} to ${newRole}`);
-          })
-          .catch((error) => {
-            console.error("Error updating role: ", error);
-          });
-      });
+    // Only load users if storedUserName is Arafat_Mohammed
+    document.getElementById("load-users").addEventListener("click", function () {
+      if (storedUserName === "Arafat_Mohammed") {
+        loadUsers();
+      } else {
+        alert("You are not authorized to view this data.");
+      }
     });
   </script>
 </body>
