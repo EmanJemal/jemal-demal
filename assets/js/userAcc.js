@@ -162,7 +162,7 @@ document.querySelector('.user .fa-eye')
 
 const storedUsername = localStorage.getItem("username");
 let AdminOrmember;
-if (username === "Arafat_Mohammed") {
+if (username === "Arafat_Mohammed" || username === "Lewi123") {
     AdminOrmember = "Admin"
 }
 else {
