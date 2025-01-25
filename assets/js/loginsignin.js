@@ -91,7 +91,7 @@ document
               .then(() => {
                 localStorage.setItem("username", username); // Store the username in local storage
                 window.location.href =
-                  "https://lewi-zelalem.github.io/FlipHacks/userAcc.html"; // Redirect to index.html
+                  "../../userAcc.html"; // Redirect to index.html
               })
               .catch((error) => {
                 console.error("Error saving user data: ", error);
@@ -127,7 +127,7 @@ document
           if (userData.password === password) {
             // Replace with password comparison if hashed
             localStorage.setItem("username", username); // Store the username in local storage
-            window.location.href = "https://lewi-zelalem.github.io/FlipHacks/userAcc.html"; // Redirect to index.html
+            window.location.href = "../../userAcc.html"; // Redirect to index.html
           } else {
             document.getElementById("error-message").innerText =
               "Invalid password!";

@@ -177,237 +177,244 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+        const storedUserName = localStorage.getItem('username');
 
-        let groups = [];
-        let selectedMembers = new Set(); // Track selected members
+        if (storedUserName === 'Arafat_Mohammed') {
+            let groups = [];
+            let selectedMembers = new Set(); // Track selected members
 
-        // Fetch and display team members
-        function fetchTeamMembers() {
-            const developersRef = ref(database, 'web developers');
-            const innovationRef = ref(database, 'Innovation and Research');
-            const promotionRef = ref(database, 'Promotion and Marketing');
+            // Fetch and display team members
+            function fetchTeamMembers() {
+                const developersRef = ref(database, 'web developers');
+                const innovationRef = ref(database, 'Innovation and Research');
+                const promotionRef = ref(database, 'Promotion and Marketing');
 
-            Promise.all([get(developersRef), get(innovationRef), get(promotionRef)]).then(([developersSnapshot, innovationSnapshot, promotionSnapshot]) => {
-                const developersContainer = document.getElementById('developers-container');
-                const innovationContainer = document.getElementById('innovation-container');
-                const promotionContainer = document.getElementById('promotion-container');
+                Promise.all([get(developersRef), get(innovationRef), get(promotionRef)]).then(([developersSnapshot, innovationSnapshot, promotionSnapshot]) => {
+                    const developersContainer = document.getElementById('developers-container');
+                    const innovationContainer = document.getElementById('innovation-container');
+                    const promotionContainer = document.getElementById('promotion-container');
 
-                developersContainer.innerHTML = '<h3>Developers</h3>';
-                innovationContainer.innerHTML = '<h3>Innovators</h3>';
-                promotionContainer.innerHTML = '<h3>Promoters</h3>';
+                    developersContainer.innerHTML = '<h3>Developers</h3>';
+                    innovationContainer.innerHTML = '<h3>Innovators</h3>';
+                    promotionContainer.innerHTML = '<h3>Promoters</h3>';
 
-                const existingMembers = new Set(groups.flatMap(group => group.members));
+                    const existingMembers = new Set(groups.flatMap(group => group.members));
 
-                if (developersSnapshot.exists()) {
-                    const developers = developersSnapshot.val();
-                    for (let username in developers) {
-                        const developer = developers[username];
-                        if (!existingMembers.has(developer.firstName)) {
-                            const memberDiv = createDraggableMemberDiv(developer.firstName);
-                            developersContainer.appendChild(memberDiv);
+                    if (developersSnapshot.exists()) {
+                        const developers = developersSnapshot.val();
+                        for (let username in developers) {
+                            const developer = developers[username];
+                            if (!existingMembers.has(developer.firstName)) {
+                                const memberDiv = createDraggableMemberDiv(developer.firstName);
+                                developersContainer.appendChild(memberDiv);
+                            }
                         }
                     }
-                }
 
-                if (innovationSnapshot.exists()) {
-                    const innovators = innovationSnapshot.val();
-                    for (let username in innovators) {
-                        const innovator = innovators[username];
-                        if (!existingMembers.has(innovator.firstName)) {
-                            const memberDiv = createDraggableMemberDiv(innovator.firstName);
-                            innovationContainer.appendChild(memberDiv);
+                    if (innovationSnapshot.exists()) {
+                        const innovators = innovationSnapshot.val();
+                        for (let username in innovators) {
+                            const innovator = innovators[username];
+                            if (!existingMembers.has(innovator.firstName)) {
+                                const memberDiv = createDraggableMemberDiv(innovator.firstName);
+                                innovationContainer.appendChild(memberDiv);
+                            }
                         }
                     }
-                }
 
-                if (promotionSnapshot.exists()) {
-                    const promoters = promotionSnapshot.val();
-                    for (let username in promoters) {
-                        const promoter = promoters[username];
-                        if (!existingMembers.has(promoter.firstName)) {
-                            const memberDiv = createDraggableMemberDiv(promoter.firstName);
-                            promotionContainer.appendChild(memberDiv);
+                    if (promotionSnapshot.exists()) {
+                        const promoters = promotionSnapshot.val();
+                        for (let username in promoters) {
+                            const promoter = promoters[username];
+                            if (!existingMembers.has(promoter.firstName)) {
+                                const memberDiv = createDraggableMemberDiv(promoter.firstName);
+                                promotionContainer.appendChild(memberDiv);
+                            }
                         }
                     }
-                }
-            }).catch((error) => {
-                console.error("Error fetching team member data: ", error);
-            });
-        }
+                }).catch((error) => {
+                    console.error("Error fetching team member data: ", error);
+                });
+            }
 
-        // Fetch existing groups
-        function fetchGroups() {
-            const groupsRef = ref(database, 'groups');
-            get(groupsRef).then(snapshot => {
-                if (snapshot.exists()) {
-                    groups = snapshot.val();
-                    if (!Array.isArray(groups)) {
-                        groups = Object.values(groups);
+            // Fetch existing groups
+            function fetchGroups() {
+                const groupsRef = ref(database, 'groups');
+                get(groupsRef).then(snapshot => {
+                    if (snapshot.exists()) {
+                        groups = snapshot.val();
+                        if (!Array.isArray(groups)) {
+                            groups = Object.values(groups);
+                        }
+                        updateGroupsDisplay();
+                    } else {
+                        groups = [];
                     }
+                }).catch(error => {
+                    console.error("Error fetching groups: ", error);
+                });
+            }
+
+            // Create a draggable member div
+            function createDraggableMemberDiv(memberName) {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'member-item';
+                memberDiv.innerText = memberName;
+
+                // Remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.innerHTML = '&times;';
+                removeBtn.style.marginLeft = '10px';
+                removeBtn.style.border = 'none';
+                removeBtn.style.background = 'none';
+                removeBtn.style.color = '#fff';
+                removeBtn.style.cursor = 'pointer';
+                removeBtn.onclick = () => {
+                    memberDiv.remove();
+                    saveGroupsToDatabase();
+                };
+
+                memberDiv.appendChild(removeBtn);
+                memberDiv.draggable = true;
+
+                // Drag start event
+                memberDiv.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', memberName);
+                });
+
+                // Click event to select member
+                memberDiv.addEventListener('click', () => {
+                    if (selectedMembers.has(memberName)) {
+                        selectedMembers.delete(memberName);
+                        memberDiv.classList.remove('selected');
+                    } else {
+                        selectedMembers.add(memberName);
+                        memberDiv.classList.add('selected');
+                    }
+                });
+
+                return memberDiv;
+            }
+
+            // Add member to group
+            function addMemberToGroup(memberName, groupDiv) {
+                const groupName = groupDiv.querySelector('h3').innerText;
+                const group = groups.find(g => g.name === groupName);
+
+                // Check if member is already in another group
+                const memberInAnotherGroup = groups.some(g => g.members.includes(memberName));
+                if (memberInAnotherGroup) {
+                    alert(`${memberName} is already in another group.`);
+                    return;
+                }
+
+                if (group && group.members.length < 4) {
+                    group.members.push(memberName);
                     updateGroupsDisplay();
+                    saveGroupsToDatabase();
                 } else {
-                    groups = [];
+                    alert('Maximum number of members reached for this group.');
                 }
-            }).catch(error => {
-                console.error("Error fetching groups: ", error);
+            }
+
+            // Create a new group
+            document.getElementById('create-group-btn').addEventListener('click', () => {
+                const groupName = prompt("Enter the group name:");
+                if (groupName && selectedMembers.size > 0) {
+                    const newGroup = { name: groupName, members: Array.from(selectedMembers) };
+                    groups.push(newGroup);
+                    updateGroupsDisplay();
+                    saveGroupsToDatabase();
+                    selectedMembers.clear(); // Clear selected members after group creation
+                } else {
+                    alert('Please select members before creating a group.');
+                }
             });
-        }
 
-        // Create a draggable member div
-        function createDraggableMemberDiv(memberName) {
-            const memberDiv = document.createElement('div');
-            memberDiv.className = 'member-item';
-            memberDiv.innerText = memberName;
+            // Update groups display
+            function updateGroupsDisplay() {
+                const groupsContainer = document.getElementById('groups-container');
+                groupsContainer.innerHTML = '';
 
-            // Remove button
-            const removeBtn = document.createElement('button');
-            removeBtn.innerHTML = '&times;';
-            removeBtn.style.marginLeft = '10px';
-            removeBtn.style.border = 'none';
-            removeBtn.style.background = 'none';
-            removeBtn.style.color = '#fff';
-            removeBtn.style.cursor = 'pointer';
-            removeBtn.onclick = () => {
-                memberDiv.remove();
-                saveGroupsToDatabase();
+                groups.forEach(group => {
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'group';
+                    groupDiv.innerHTML = `<h3>${group.name}</h3>`;
+                    groupDiv.ondragover = (e) => {
+                        e.preventDefault();
+                        groupDiv.classList.add('drag-over');
+                    };
+
+                    groupDiv.ondragleave = () => {
+                        groupDiv.classList.remove('drag-over');
+                    };
+
+                    groupDiv.ondrop = (e) => {
+                        e.preventDefault();
+                        const memberName = e.dataTransfer.getData('text/plain');
+                        addMemberToGroup(memberName, groupDiv);
+                        groupDiv.classList.remove('drag-over');
+                    };
+
+                    const memberList = document.createElement('div');
+                    memberList.className = 'members';
+
+                    group.members.forEach(memberName => {
+                        const memberDiv = createDraggableMemberDiv(memberName);
+                        memberList.appendChild(memberDiv);
+                    });
+
+                    groupDiv.appendChild(memberList);
+                    groupsContainer.appendChild(groupDiv);
+                });
+            }
+
+            // Save groups to Firebase
+            function saveGroupsToDatabase() {
+                const groupsRef = ref(database, 'groups');
+                set(groupsRef, groups).then(() => {
+                    console.log("Groups saved successfully.");
+                }).catch(error => {
+                    console.error("Error saving groups: ", error);
+                });
+            }
+
+            // Drag and drop event listeners for the drag area
+            const dragArea = document.getElementById('drag-area');
+            dragArea.ondragover = (e) => {
+                e.preventDefault();
+                dragArea.classList.add('drag-over');
             };
 
-            memberDiv.appendChild(removeBtn);
-            memberDiv.draggable = true;
+            dragArea.ondragleave = () => {
+                dragArea.classList.remove('drag-over');
+            };
 
-            // Drag start event
-            memberDiv.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', memberName);
-            });
+            dragArea.ondrop = (e) => {
+                e.preventDefault();
+                const memberName = e.dataTransfer.getData('text/plain');
 
-            // Click event to select member
-            memberDiv.addEventListener('click', () => {
-                if (selectedMembers.has(memberName)) {
-                    selectedMembers.delete(memberName);
-                    memberDiv.classList.remove('selected');
-                } else {
-                    selectedMembers.add(memberName);
-                    memberDiv.classList.add('selected');
+                // Check if member is already in another group
+                const memberInAnotherGroup = groups.some(g => g.members.includes(memberName));
+                if (memberInAnotherGroup) {
+                    alert(`${memberName} is already in another group.`);
+                    return;
                 }
-            });
 
-            return memberDiv;
-        }
-
-        // Add member to group
-        function addMemberToGroup(memberName, groupDiv) {
-            const groupName = groupDiv.querySelector('h3').innerText;
-            const group = groups.find(g => g.name === groupName);
-
-            // Check if member is already in another group
-            const memberInAnotherGroup = groups.some(g => g.members.includes(memberName));
-            if (memberInAnotherGroup) {
-                alert(`${memberName} is already in another group.`);
-                return;
-            }
-
-            if (group && group.members.length < 4) {
-                group.members.push(memberName);
-                updateGroupsDisplay();
-                saveGroupsToDatabase();
-            } else {
-                alert('Maximum number of members reached for this group.');
-            }
-        }
-
-        // Create a new group
-        document.getElementById('create-group-btn').addEventListener('click', () => {
-            const groupName = prompt("Enter the group name:");
-            if (groupName && selectedMembers.size > 0) {
-                const newGroup = { name: groupName, members: Array.from(selectedMembers) };
+                const newGroup = { name: 'New Group', members: [memberName] };
                 groups.push(newGroup);
                 updateGroupsDisplay();
                 saveGroupsToDatabase();
-                selectedMembers.clear(); // Clear selected members after group creation
-            } else {
-                alert('Please select members before creating a group.');
-            }
-        });
+                dragArea.classList.remove('drag-over');
+            };
 
-        // Update groups display
-        function updateGroupsDisplay() {
-            const groupsContainer = document.getElementById('groups-container');
-            groupsContainer.innerHTML = '';
-
-            groups.forEach(group => {
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'group';
-                groupDiv.innerHTML = `<h3>${group.name}</h3>`;
-                groupDiv.ondragover = (e) => {
-                    e.preventDefault();
-                    groupDiv.classList.add('drag-over');
-                };
-
-                groupDiv.ondragleave = () => {
-                    groupDiv.classList.remove('drag-over');
-                };
-
-                groupDiv.ondrop = (e) => {
-                    e.preventDefault();
-                    const memberName = e.dataTransfer.getData('text/plain');
-                    addMemberToGroup(memberName, groupDiv);
-                    groupDiv.classList.remove('drag-over');
-                };
-
-                const memberList = document.createElement('div');
-                memberList.className = 'members';
-
-                group.members.forEach(memberName => {
-                    const memberDiv = createDraggableMemberDiv(memberName);
-                    memberList.appendChild(memberDiv);
-                });
-
-                groupDiv.appendChild(memberList);
-                groupsContainer.appendChild(groupDiv);
-            });
+            fetchTeamMembers();
+            fetchGroups();
         }
 
-        // Save groups to Firebase
-        function saveGroupsToDatabase() {
-            const groupsRef = ref(database, 'groups');
-            set(groupsRef, groups).then(() => {
-                console.log("Groups saved successfully.");
-            }).catch(error => {
-                console.error("Error saving groups: ", error);
-            });
+        else {
+            alert('You are not authorized to access this page.');
         }
-
-        // Drag and drop event listeners for the drag area
-        const dragArea = document.getElementById('drag-area');
-        dragArea.ondragover = (e) => {
-            e.preventDefault();
-            dragArea.classList.add('drag-over');
-        };
-
-        dragArea.ondragleave = () => {
-            dragArea.classList.remove('drag-over');
-        };
-
-        dragArea.ondrop = (e) => {
-            e.preventDefault();
-            const memberName = e.dataTransfer.getData('text/plain');
-
-            // Check if member is already in another group
-            const memberInAnotherGroup = groups.some(g => g.members.includes(memberName));
-            if (memberInAnotherGroup) {
-                alert(`${memberName} is already in another group.`);
-                return;
-            }
-
-            const newGroup = { name: 'New Group', members: [memberName] };
-            groups.push(newGroup);
-            updateGroupsDisplay();
-            saveGroupsToDatabase();
-            dragArea.classList.remove('drag-over');
-        };
-
-        fetchTeamMembers();
-        fetchGroups();
     </script>
 </body>
 
