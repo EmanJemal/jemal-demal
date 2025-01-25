@@ -358,9 +358,10 @@
 */
 .team {
     display: none;
-    grid-template-columns: 28% 28% 28%;
+    grid-template-columns: 90%;
     column-gap: 5%;
     margin-top: 10px;
+    margin-left: 50px;
 }
 
 .developer-team {
@@ -371,14 +372,15 @@
     box-shadow: 2px 2px 10px 2px rgba(0, 0, 0, 0.329);
     margin-top: 100px;
     cursor: pointer;
-    padding: 10px;
+    padding: 20px;
     border-radius: 8px;
     transition: scale 800ms ease-in-out, box-shadow 800ms ease-in-out;
 }
 
 .innovation-and-research-team {
     width: 100%;
-    height: 250px;
+    padding: 20px;
+    height: fit-content;
     background-color: rgba(56, 56, 56, 0.5);
     margin-left: 10px;
     box-shadow: 2px 2px 10px 2px rgba(0, 0, 0, 0.329);
@@ -390,13 +392,15 @@
 
 .promotion-and-marketing-team {
     width: 100%;
-    height: 250px;
+    height: fit-content;
     background-color: rgba(56, 56, 56, 0.5);
     margin-left: 10px;
     box-shadow: 2px 2px 10px 2px rgba(0, 0, 0, 0.329);
     margin-top: 100px;
     cursor: pointer;
     border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 50px;
     transition: scale 800ms ease-in-out, box-shadow 800ms ease-in-out;
 }
 
@@ -517,7 +521,7 @@ choose team
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    width: 15%;
+    width: 150px;
     display: inline-block;
     margin-bottom: 20px;
 }
@@ -544,12 +548,12 @@ choose team
     .members {
         margin-top: 150px;
         width: 90%;
-        margin-right: 30%;
     }
 
     .user {
         height: fit-content;
         padding-bottom: 30px;
+        margin-left: 5%;
     }
     
 
@@ -577,7 +581,20 @@ choose team
         margin-top: 50px;
         font-size: 25px;
     }
-    .user .databse-info .Security-key{
+    .user .databse-info .Security-key , .team-choosed h2 {
         font-size: 18px;
+    }
+    .developer-team .innovation-and-research-team .promotion-and-marketing-team{
+        font-size: 13px;
+    }
+    .team {
+        width: 105%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+@media(max-width: 433px){
+    .team p{
+        font-size: 10px;
     }
 }
