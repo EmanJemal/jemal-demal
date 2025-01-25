@@ -140,6 +140,7 @@
     border-radius: 20px;
     box-shadow: 5px 5px 2px rgba(0, 0, 0, 0.5);
     height: 200px;
+    padding-bottom: 30px;
 }
 
 /*
@@ -269,6 +270,17 @@
 /*
 -register and desc
 */
+.register-container {
+    display: flex;
+    /* Use Flexbox for centering */
+    justify-content: center;
+    /* Horizontal centering */
+    align-items: center;
+    /* Vertical centering */
+    /* Full-page height for centering demonstration */
+    position: relative;
+    /* Allows absolute positioning inside */
+}
 .btn {
     position: relative;
     color: var(--dark-mint);
@@ -283,8 +295,8 @@
     z-index: 1;
     text-decoration: none;
     /* Removes underline from link */
-    margin-left: 38%;
-    margin-top: 10px;
+    margin: 10px 0;
+    /* Adds vertical spacing */
 }
 
 .btn::before {
@@ -332,6 +344,13 @@
     text-align: center;
     color: var(--dark-mint);
     margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    /* Centers horizontally */
+    align-items: center;
+    /* Centers vertically */
+    height: 100vh;
+    /* Full-height container for demonstration */
 }
 
 /*
@@ -346,12 +365,13 @@
 
 .developer-team {
     width: 100%;
-    height: 250px;
+    height: fit-content;
     background-color: rgba(56, 56, 56, 0.5);
     margin-left: 20px;
     box-shadow: 2px 2px 10px 2px rgba(0, 0, 0, 0.329);
     margin-top: 100px;
     cursor: pointer;
+    padding: 10px;
     border-radius: 8px;
     transition: scale 800ms ease-in-out, box-shadow 800ms ease-in-out;
 }
@@ -444,6 +464,7 @@ choose team
     margin-top: 30px;
     color: var(--dark-mint);
     display: none;
+    margin-left: 30px;
 }
 
 
@@ -476,7 +497,7 @@ choose team
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    width: 15%;
+    width: 150px;
     display: none;
     font-weight: bold;
 }
@@ -522,48 +543,41 @@ choose team
     .user,
     .members {
         margin-top: 150px;
+        width: 90%;
+        margin-right: 30%;
     }
 
     .user {
-        height: 700px;
+        height: fit-content;
+        padding-bottom: 30px;
     }
+    
+
 }
 
 @media (max-width: 803px) {
     .team {
-        display: flex;
-        flex-direction: column;
-        gap: 0px;
-        /* Add some spacing between cards */
-        align-items: center;
-        /* Center the cards */
+        display: grid;
+        grid-template-columns: 1fr;
     }
 
     .developer-team,
     .innovation-and-research-team,
     .promotion-and-marketing-team {
-        width: 90%;
-        /* Adjust width to fit within the smaller screen */
-        margin-left: 0;
-        height: 150px;
-        /* Remove margins to prevent overflow */
+        width: fit-content;
+        max-width: calc(100% - 70px);
     }
 
-    .developer-team h3,
-    .innovation-and-research-team h3,
-    .promotion-and-marketing-team h3 {
-        font-size: 1.2rem;
-        /* Adjust font size to prevent overflow */
-    }
 
-    .developer-team p,
-    .innovation-and-research-team p,
-    .promotion-and-marketing-team p {
-        font-size: 1rem;
-        /* Adjust paragraph font size to improve readability */
-    }
 
-    .user {
-        height: 1100px;
+
+}
+@media(max-width: 674px){
+    .choose-team h1{
+        margin-top: 50px;
+        font-size: 25px;
+    }
+    .user .databse-info .Security-key{
+        font-size: 18px;
     }
 }
