@@ -185,7 +185,8 @@ body {
   font-size: var(--fontSize-body-4);
   font-weight: var(--weight-regular);
   line-height: var(--lineHeight-5);
-  height: 300vh;
+  height: fit-content;
+  max-height: calc(100% + 50px);
 }
 
 body.loaded {
