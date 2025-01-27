@@ -204,8 +204,9 @@
                         const developers = developersSnapshot.val();
                         for (let username in developers) {
                             const developer = developers[username];
-                            if (!existingMembers.has(developer.firstName)) {
-                                const memberDiv = createDraggableMemberDiv(developer.firstName);
+                            const fullName = `${developer.firstName} ${developer.lastName}`; // Combine first and last name
+                            if (!existingMembers.has(fullName)) {
+                                const memberDiv = createDraggableMemberDiv(fullName);
                                 developersContainer.appendChild(memberDiv);
                             }
                         }
@@ -215,8 +216,9 @@
                         const innovators = innovationSnapshot.val();
                         for (let username in innovators) {
                             const innovator = innovators[username];
-                            if (!existingMembers.has(innovator.firstName)) {
-                                const memberDiv = createDraggableMemberDiv(innovator.firstName);
+                            const fullName = `${innovator.firstName} ${innovator.lastName}`;
+                            if (!existingMembers.has(fullName)) {
+                                const memberDiv = createDraggableMemberDiv(fullName);
                                 innovationContainer.appendChild(memberDiv);
                             }
                         }
@@ -226,12 +228,15 @@
                         const promoters = promotionSnapshot.val();
                         for (let username in promoters) {
                             const promoter = promoters[username];
-                            if (!existingMembers.has(promoter.firstName)) {
-                                const memberDiv = createDraggableMemberDiv(promoter.firstName);
+                            const fullName = `${promoter.firstName} ${promoter.lastName}`;
+                            if (!existingMembers.has(fullName)) {
+                                const memberDiv = createDraggableMemberDiv(fullName);
                                 promotionContainer.appendChild(memberDiv);
                             }
                         }
                     }
+
+               
                 }).catch((error) => {
                     console.error("Error fetching team member data: ", error);
                 });

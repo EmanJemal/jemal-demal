@@ -93,52 +93,84 @@ function countMembers() {
         });
 }
 
-// Function to fetch user data
-// Function to fetch and display all members
-function fetchMembers() {
-    const membersRef = ref(database, 'users'); // Reference to the users node
-    get(membersRef)
+
+function fetchfirstName(username) {
+    const usersRef = ref(database, "users");
+    get(usersRef)
         .then((snapshot) => {
             if (snapshot.exists()) {
-                const members = snapshot.val(); // Get the users data
-                const memberCount = Object.keys(members).length; // Count total members
-                const memberCountElement = document.querySelector('.hack-members h1'); // Select the member count element
-
-                // Update the member count display
-                if (memberCountElement) {
-                    memberCountElement.textContent = `${memberCount} Members`; // Update the count display
-                } else {
-                }
-
-                // Display first five members
-                const memberContainer = document.querySelector('.hack-members'); // Container for members
-
-                // Clear existing member elements
-                memberContainer.querySelectorAll('.member').forEach(member => member.remove());
-
-                // Get the first five usernames
-                const memberNames = Object.keys(members).slice(0, 5); // Get the first five usernames
-
-                // Display the first five members
-                memberNames.forEach(username => {
-                    const memberElement = document.createElement('div');
-                    memberElement.classList.add('member');
-                    memberElement.innerHTML = `<i class="fa-solid fa-user-tie"></i><h3>${members[username].firstName} ${members[username].lastName}</h3>`; // Assuming you want to show first and last name
-                    memberContainer.appendChild(memberElement); // Append member element to the container
-                });
-            } else {
+                const usersDdata = snapshot.val();
+                const rUserData = [];
+                
 
             }
         })
+}
+
+fetchfirstName(username);
+
+// Function to fetch groups and search for the user
+function fetchGroupsAndDisplayMembers() {
+    const groupsRef = ref(database, "groups"); // Reference to the groups node
+    get(groupsRef)
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const groups = snapshot.val(); // Get all groups data
+                let userFound = false; // Flag to check if user is found
+                let groupMembers = []; // Array to store group members
+
+                console.log(groups)
+                // Iterate through groups to search for the user
+                for (let groupName in groups) {
+                    const members = groups[groupName].members || []; // Get members of the group
+
+                    console.log(username)
+                    if (members.includes(username)) {
+                        userFound = true;
+                        groupMembers = members; // Save the members of the group
+                       
+                        console.log(groupMembers)
+                       
+                        break; // Exit loop if user is found
+                    }
+                }
+
+                // Update the DOM based on whether the user is found
+                const hackMembersDiv = document.querySelector(".hack-members");
+                if (userFound) {
+                    hackMembersDiv.style.display = "block"; // Show the div
+                    displayMembers(groupMembers); // Display group members
+                } else {
+                    hackMembersDiv.style.display = "none"; // Hide the div
+                }
+            } else {
+                console.error("No group data available");
+            }
+        })
         .catch((error) => {
-            console.error("Error fetching members data: ", error);
+            console.error("Error fetching groups data: ", error);
         });
 }
+
+// Function to display group members
+function displayMembers(members) {
+    const hackMembersDiv = document.querySelector(".hack-members");
+    hackMembersDiv.innerHTML = "<h1>Team Members</h1>"; // Reset the content with a header
+
+    members.forEach((member) => {
+        const memberElement = document.createElement("div");
+        memberElement.classList.add("member");
+        memberElement.innerHTML = `<i class="fa-solid fa-user-tie"></i><h3>${member}</h3>`;
+        hackMembersDiv.appendChild(memberElement); // Append each member to the div
+    });
+}
+
+// Fetch groups and display members when the page loads
+    fetchGroupsAndDisplayMembers();
 
 
 // Fetch members data when the page loads
 window.onload = () => {
-    fetchMembers();
     fetchUserData(username);
     countMembers();
 };
@@ -204,33 +236,40 @@ document.querySelector('.submit-btn').addEventListener('click', () => {
 
 // Function to check if the user has already submitted their team
 function checkUserSubmission() {
-    const selectedTeam = document.getElementById("options").value; // Get the current value of the dropdown
-    const savedValue = localStorage.getItem("selectedTeam");
+    const teams = ["Innovation and Research", "web developers", "Promotion and Marketing"]; // List of all possible teams
+    let teamFound = false; // Flag to check if the user is in any team
 
-    // Reference to the user's section under the selected team in the database
-    const userRef = ref(database, `/${savedValue}/${username}`);
+    // Loop through all teams to find the user's data
+    teams.forEach((team) => {
+        const userRef = ref(database, `/${team}/${username}`); // Reference to the user's data in the team
 
-    // Check if the user already exists in the selected team
-    get(userRef)
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                // User has already submitted their team, hide the dropdown and button
-                document.getElementById("options").style.display = "none"; // Hide dropdown
-                document.querySelector('.submit-btn').style.display = "none"; // Hide submit button
-                document.querySelector('.team').style.display = "none"; // Hide the team selection message
-                document.querySelector('.team-choosed').style.display = "block"; // Show the team choosed message 
-                document.querySelector('.team-database').innerHTML = snapshot.val().selectedTeam; // Show the team choosed message
-            } else {
-                // User has not submitted, show the dropdown and button
-                document.getElementById("options").style.display = "block"; // Show dropdown
-                document.querySelector('.submit-btn').style.display = "block"; // Show submit button
-                document.querySelector('.choose-team h1').style.display = "block"; // Show the choose team message
-                document.querySelector('.team').style.display = "grid"; // Hide the team selection message
-            }
-        })
-        .catch((error) => {
-            console.error("Error checking user submission: ", error);
-        });
+        get(userRef)
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    teamFound = true; // User is found in a team
+
+                    // User has already submitted their team, update the UI
+                    document.getElementById("options").style.display = "none"; // Hide dropdown
+                    document.querySelector('.submit-btn').style.display = "none"; // Hide submit button
+                    document.querySelector('.team').style.display = "none"; // Hide the team selection message
+                    document.querySelector('.team-choosed').style.display = "block"; // Show the team choosed message
+                    document.querySelector('.team-database').innerHTML = team; // Display the selected team
+                }
+            })
+            .catch((error) => {
+                console.error(`Error checking user submission in team ${team}: `, error);
+            });
+    });
+
+    // After checking all teams, show the form if no team is found
+    setTimeout(() => {
+        if (!teamFound) {
+            document.getElementById("options").style.display = "block"; // Show dropdown
+            document.querySelector('.submit-btn').style.display = "block"; // Show submit button
+            document.querySelector('.choose-team h1').style.display = "block"; // Show the choose team message
+            document.querySelector('.team').style.display = "grid"; // Show the team selection form
+        }
+    }, 1000); // Add a delay to allow all `get()` calls to complete
 }
 
 // Function to handle submission of team data
@@ -279,7 +318,6 @@ function submitData() {
 
 // Call checkUserSubmission on page load
 window.onload = () => {
-    fetchMembers();
     fetchUserData(username);
     countMembers();
     checkUserSubmission(); // Check if the user has already submitted their team

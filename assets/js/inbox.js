@@ -35,8 +35,12 @@ function loadUsers() {
         const userListDiv = document.getElementById("user-list");
         userListDiv.innerHTML = ""; // Clear existing list
 
-        for (const key in users) {
-          const user = users[key];
+        // Convert users object to an array and sort by lastInteraction
+        const sortedUsers = Object.entries(users).sort(([, a], [, b]) => {
+          return (b.lastInteraction || 0) - (a.lastInteraction || 0);
+        });
+
+        sortedUsers.forEach(([key, user]) => {
           const userDiv = document.createElement("div");
           userDiv.classList.add("user");
           userDiv.setAttribute("data-username", key);
@@ -59,7 +63,7 @@ function loadUsers() {
               userDiv.querySelector(".last-message").innerHTML = messageData.text;
             }
           });
-        }
+        });
       } else {
         alert("No user data found.");
       }
@@ -69,21 +73,48 @@ function loadUsers() {
     });
 }
 
-// Function to open a chat with the selected user
-// Function to open a chat with the selected user
-function openChat(firstName, lastName, username) {
-  currentChatUser = username;
-  const messagesDiv = document.getElementById("messages");
-  messagesDiv.innerHTML = ""; // Clear existing messages
-  messagesDiv.innerHTML = `<h2 class="chat-with">Chatting with ${firstName} ${lastName}</h2>`;
 
-  // Load existing messages for the current user
-  const chatRef = ref(database, `messages/${username}_${currentUser}`);
-  onChildAdded(chatRef, (snapshot) => {
-    const messageData = snapshot.val();
-    displayMessage(messageData.text, messageData.sender === currentUser ? 'sender' : 'receiver', messageData.timestamp);
+function loadUsersRealTime() {
+  const usersRef = ref(database, "users");
+  const userListDiv = document.getElementById("user-list");
+
+  onValue(usersRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      userListDiv.innerHTML = ""; // Clear existing list
+
+      // Convert users object to an array and sort by lastInteraction
+      const sortedUsers = Object.entries(users).sort(([, a], [, b]) => {
+        return (b.lastInteraction || 0) - (a.lastInteraction || 0);
+      });
+
+      sortedUsers.forEach(([key, user]) => {
+        const userDiv = document.createElement("div");
+        userDiv.classList.add("user");
+        userDiv.setAttribute("data-username", key);
+        userDiv.innerHTML = `<strong class="sender-name">${user.firstName} ${user.lastName}</strong>`;
+        userDiv.innerHTML += `<div class="last-message">Loading last message...</div>`; // Placeholder for last message
+
+        // Add click event to open chat for the selected user
+        userDiv.addEventListener("click", () => {
+          openChat(user.firstName, user.lastName, key);
+        });
+
+        userListDiv.appendChild(userDiv);
+
+        // Listen for the last message for this user
+        const chatRef = ref(database, `messages/${currentUser}_${key}`);
+        onChildAdded(chatRef, (messageSnapshot) => {
+          const messageData = messageSnapshot.val();
+          if (messageData) {
+            userDiv.querySelector(".last-message").innerHTML = messageData.text;
+          }
+        });
+      });
+    } else {
+      userListDiv.innerHTML = "<p>No users found.</p>";
+    }
   });
-
 }
 
 // Function to display a message in the chat
@@ -108,39 +139,33 @@ function displayMessage(text, type, timestamp) {
 }
 
 
-// Send message button functionality
-// Send message button functionality
 document.getElementById("sendButton").addEventListener("click", () => {
   const messageText = document.getElementById("chatInput").value;
   if (messageText.trim() !== "" && currentChatUser) {
-    // Path for sender
     const senderMessageRef = ref(database, `messages/${currentUser}_${currentChatUser}`);
-    // Path for receiver
     const receiverMessageRef = ref(database, `messages/${currentChatUser}_${currentUser}`);
 
-    // Create a message object
     const messageObject = {
       text: messageText,
       sender: currentUser,
-      receptor: currentChatUser, // Add receptor information
+      receptor: currentChatUser,
       timestamp: Date.now(),
     };
 
-    // Store the message in both sender and receiver paths
     const newSenderMessageRef = push(senderMessageRef);
     const newReceiverMessageRef = push(receiverMessageRef);
 
-    // Set the message in both paths
-    set(newSenderMessageRef, messageObject).catch((error) => {
-      console.error("Error sending message to sender: ", error);
+    Promise.all([
+      set(newSenderMessageRef, messageObject),
+      set(newReceiverMessageRef, messageObject),
+      // Update lastInteraction for both users
+      set(ref(database, `users/${currentUser}/lastInteraction`), Date.now()),
+      set(ref(database, `users/${currentChatUser}/lastInteraction`), Date.now())
+    ]).catch((error) => {
+      console.error("Error sending message: ", error);
     });
 
-    set(newReceiverMessageRef, messageObject).catch((error) => {
-      console.error("Error sending message to receiver: ", error);
-    });
-
-    // Clear the input field
-    document.getElementById("chatInput").value = "";
+    document.getElementById("chatInput").value = ""; // Clear the input field
   }
 });
 
@@ -184,3 +209,37 @@ userIcon.addEventListener('click', () => {
 
 const notificationCount = document.getElementById("notification-count");
 
+
+
+
+
+// Function to move a user div to the top of the user list
+function moveUserToTop(username) {
+  const userListDiv = document.getElementById("user-list");
+  const userDiv = document.querySelector(`[data-username="${username}"]`);
+  if (userDiv) {
+    userListDiv.removeChild(userDiv); // Remove the user div from its current position
+    userListDiv.insertBefore(userDiv, userListDiv.firstChild); // Insert it at the top of the list
+  }
+}
+
+
+
+function openChat(firstName, lastName, username) {
+  currentChatUser = username;
+  const messagesDiv = document.getElementById("messages");
+  messagesDiv.innerHTML = ""; // Clear existing messages
+  messagesDiv.innerHTML = `<h2 class="chat-with">Chatting with ${firstName} ${lastName}</h2>`;
+
+  // Load existing messages for the current user
+  const chatRef = ref(database, `messages/${username}_${currentUser}`);
+  onChildAdded(chatRef, (snapshot) => {
+    const messageData = snapshot.val();
+    displayMessage(messageData.text, messageData.sender === currentUser ? "sender" : "receiver", messageData.timestamp);
+
+    // Update lastInteraction timestamp
+    if (messageData.sender === username) {
+      set(ref(database, `users/${currentUser}/lastInteraction`), Date.now());
+    }
+  });
+}

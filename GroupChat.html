@@ -404,9 +404,9 @@
       <i class="fa-solid fa-user header-user-icon"></i>
       <div class="notification-dot" id="notificationDot"></div> <!-- Add this div -->
       <div class="dropdown-menu" id="dropdownMenu">
+        <a href="./userAcc.html" class="dropdown-item">Dashboard</a>
         <a href="profile.html" class="dropdown-item">Profile</a>
         <a id="inboxLink" class="dropdown-item">Inbox</a>
-        <a id="groupChat" class="dropdown-item inboxLink">Group Chat</a>
         <a href="Login and signup/index.html" class="dropdown-item">Logout</a>
       </div>
     </div>
@@ -461,7 +461,7 @@
 
 
     let AdminOrmember;
-      if (username === "Arafat_Mohammed(Admin)") {
+      if (username === "Arafat_Mohammed(Admin)" || username === "Lewi123(Admin)") {
         AdminOrmember = "Admin"
       }
       else {

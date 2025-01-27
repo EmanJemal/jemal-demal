@@ -130,6 +130,7 @@
     margin-top: 120px;
     border-radius: 30px;
     box-shadow: 5px 5px 2px rgba(0, 0, 0, 0.5);
+    margin-bottom: 400px;
 }
 
 .members {
@@ -142,7 +143,11 @@
     height: 200px;
     padding-bottom: 30px;
 }
-
+.hack-members {
+    background-color: rgba(35, 36, 36, 0.5);
+    box-shadow: 5px 5px 2px rgba(0, 0, 0, 0.5);
+    border-radius: 20px;
+}
 /*
 -account
 */
@@ -201,7 +206,7 @@
     font-size: 30px;
     width: 100%;
     text-align: start;
-    margin-top: 30px;
+    margin-top: 8px;
     margin-left: 15px;
     justify-content: center;
 }
@@ -209,7 +214,7 @@
 .hack-members h1 {
     width: 100%;
     text-align: center;
-    margin-top: 20px;
+    margin-top: 5px;
     font-size: 25px;
     color: var(--dark-mint);
 }
@@ -223,7 +228,7 @@
     width: 100%;
     text-align: start;
     margin-left: 80px;
-    margin-top: 15px;
+    margin-top: 5px;
 }
 
 /*
@@ -554,6 +559,7 @@ choose team
         height: fit-content;
         padding-bottom: 30px;
         margin-left: 5%;
+        margin-top: 300px;
     }
     
 
